@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BioAttend - Student Attendance</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5fb;color:#202943;font-family:Arial,sans-serif}
+header{background:linear-gradient(120deg,#202d61,#4559b5);color:white;padding:22px 18px 28px;border-radius:0 0 24px 24px}
+.top{display:flex;justify-content:space-between;align-items:center}.brand{font-size:19px;font-weight:800}.brand span{color:#a9c8ff}.pill{font-size:10px;background:#ffffff22;border:1px solid #ffffff44;padding:7px 10px;border-radius:20px}
+header h1{font-size:23px;margin:24px 0 7px}header p{font-size:12px;color:#dbe3ff;margin:0;line-height:1.5}
+.wrap{max-width:850px;margin:auto;padding:0 14px 28px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:-16px}
+.stat{background:white;border-radius:14px;padding:14px 10px;box-shadow:0 5px 18px #1c2a5510}.stat small{color:#8992aa;font-size:10px}.stat b{display:block;font-size:23px;margin-top:6px;color:#26365f}
+.card{background:white;border-radius:16px;padding:17px;margin-top:14px;box-shadow:0 5px 18px #1c2a5509}.card h2{font-size:16px;margin:0 0 14px}.hint{font-size:11px;color:#8b93a8;line-height:1.5;margin:-7px 0 13px}
+label{display:block;font-size:11px;font-weight:bold;margin:12px 0 6px;color:#53607d}input,select{width:100%;padding:12px;border:1px solid #e1e6f0;border-radius:9px;font-size:13px;background:#fbfcff;outline:none}input:focus,select:focus{border-color:#667ce0}
+button{border:0;border-radius:9px;padding:12px 14px;font-weight:bold;cursor:pointer;font-size:12px}.primary{background:#4c62c5;color:white;width:100%;margin-top:14px}.secondary{background:#edf0ff;color:#4559b5}.danger{background:#fff0f0;color:#c64e5b}
+.scanbox{border:1px dashed #aab6e9;background:#f7f8ff;border-radius:13px;padding:17px;text-align:center}.finger{font-size:48px;color:#5268c7}.scanbox p{font-size:11px;color:#7e88a4;margin:6px 0 12px}.scanbtn{background:#263b85;color:white;padding:12px 22px}.status{font-size:12px;font-weight:bold;margin-top:10px;min-height:16px;color:#27885d}
+.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid #eef0f5;font-size:11px}th{font-size:9px;color:#8b93a8;letter-spacing:.5px}td{color:#4b5670}.present{color:#21895d;background:#e8f8f0;padding:5px 8px;border-radius:20px;font-weight:bold;font-size:10px}
+.empty{text-align:center;color:#9aa2b5;padding:22px 5px}.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.tools button{flex:1}
+.note{background:#fff8e8;border:1px solid #f4e4b9;color:#85651c;padding:11px;border-radius:10px;font-size:10px;line-height:1.5;margin-top:14px}
+footer{text-align:center;color:#9aa2b5;font-size:10px;padding:20px}
+@media(min-width:650px){.wrap{padding-left:22px;padding-right:22px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.stats{gap:15px}.stat{padding:18px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="top"><div class="brand">◉ Bio<span>Attend</span></div><div class="pill">STUDENT PORTAL</div></div>
+ <h1>Fingerprint Attendance</h1>
+ <p>Smart student attendance management system<br>Simple • Fast • Digital record</p>
+</header>
+<main class="wrap">
+ <section class="stats">
+  <div class="stat"><small>Total Students</small><b id="total">0</b></div>
+  <div class="stat"><small>Present Today</small><b id="present">0</b></div>
+  <div class="stat"><small>Attendance %</small><b id="percent">0%</b></div>
+ </section>
+
+ <section class="card">
+  <h2>＋ Student Registration</h2>
+  <p class="hint">Add a student before marking attendance.</p>
+  <form id="studentForm">
+   <div class="formgrid">
+    <div><label>Student Name *</label><input id="studentName" placeholder="Enter student name" required></div>
+    <div><label>Roll Number *</label><input id="roll" placeholder="Enter roll number" required></div>
+    <div><label>Course / Class *</label><input id="course" placeholder="e.g. BCA" required></div>
+    <div><label>Mobile (optional)</label><input id="mobile" placeholder="Mobile number" inputmode="numeric"></div>
+   </div>
+   <button class="primary" type="submit">Save Student</button>
+  </form>
+ </section>
+
+ <section class="card">
+  <h2>▤ Mark Attendance</h2>
+  <label>Select Student</label>
+  <select id="studentSelect"><option value="">First register a student</option></select>
+  <div class="scanbox" style="margin-top:14px">
+   <div class="finger">♧</div>
+   <strong style="font-size:13px">Fingerprint Scanner</strong>
+   <p>Demo scan interface — no real fingerprint is read.</p>
+   <button class="scanbtn" id="scanBtn" type="button">◉ Start Fingerprint Scan</button>
+   <div class="status" id="scanStatus"></div>
+  </div>
+  <div class="note"><b>Project demonstration:</b> This button simulates a successful fingerprint scan for classroom demonstration. It does not collect or verify biometric data.</div>
+ </section>
+
+ <section class="card">
+  <h2>▣ Today's Attendance</h2>
+  <p class="hint" id="todayDate"></p>
+  <div class="tablewrap">
+   <table><thead><tr><th>NAME</th><th>ROLL NO.</th><th>COURSE</th><th>TIME</th><th>STATUS</th></tr></thead>
+   <tbody id="attendanceRows"><tr><td colspan="5" class="empty">No attendance marked today.</td></tr></tbody></table>
+  </div>
+  <div class="tools"><button class="secondary" id="exportBtn">Download CSV</button><button class="danger" id="clearBtn">Clear Today's Demo Data</button></div>
+ </section>
+ <section class="card">
+  <h2>♙ Registered Students</h2>
+  <div class="tablewrap"><table><thead><tr><th>NAME</th><th>ROLL NO.</th><th>COURSE</th></tr></thead><tbody id="studentRows"><tr><td colspan="3" class="empty">No students registered yet.</td></tr></tbody></table></div>
+ </section>
+ <footer>BioAttend • Student Major Project • Demo Version</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const today = () => new Date().toLocaleDateString();
+const getStudents = () => JSON.parse(localStorage.getItem("bio_students") || "[]");
+const getAttendance = () => JSON.parse(localStorage.getItem("bio_attendance") || "{}");
+function saveStudents(data){localStorage.setItem("bio_students",JSON.stringify(data))}
+function saveAttendance(data){localStorage.setItem("bio_attendance",JSON.stringify(data))}
+$("todayDate").textContent = "Date: " + new Date().toLocaleDateString(undefined,{day:"2-digit",month:"long",year:"numeric"});
+function refresh(){
+ const students=getStudents(), all=getAttendance(), records=all[today()]||[];
+ $("total").textContent=students.length;
+ $("present").textContent=records.length;
+ $("percent").textContent=students.length?Math.round(records.length/students.length*100)+"%":"0%";
+ $("studentSelect").innerHTML='<option value="">Choose a student</option>'+students.map(s=>`<option value="${s.id}">${escapeHTML(s.name)} — ${escapeHTML(s.roll)}</option>`).join("");
+ $("studentRows").innerHTML=students.length?students.map(s=>`<tr><td>${escapeHTML(s.name)}</td><td>${escapeHTML(s.roll)}</td><td>${escapeHTML(s.course)}</td></tr>`).join(""):'<tr><td colspan="3" class="empty">No students registered yet.</td></tr>';
+ $("attendanceRows").innerHTML=records.length?records.map(r=>`<tr><td>${escapeHTML(r.name)}</td><td>${escapeHTML(r.roll)}</td><td>${escapeHTML(r.course)}</td><td>${r.time}</td><td><span class="present">PRESENT</span></td></tr>`).join(""):'<tr><td colspan="5" class="empty">No attendance marked today.</td></tr>';
+}
+function escapeHTML(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+$("studentForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ const students=getStudents(), roll=$("roll").value.trim();
+ if(students.some(s=>s.roll.toLowerCase()===roll.toLowerCase())){alert("This roll number is already registered.");return}
+ students.push({id:Date.now().toString(),name:$("studentName").value.trim(),roll,course:$("course").value.trim(),mobile:$("mobile").value.trim()});
+ saveStudents(students);e.target.reset();refresh();alert("Student registered successfully!");
+});
+$("scanBtn").addEventListener("click",()=>{
+ const id=$("studentSelect").value;
+ if(!id){$("scanStatus").style.color="#c64e5b";$("scanStatus").textContent="Please select a registered student first.";return}
+ $("scanBtn").disabled=true;$("scanBtn").textContent="Scanning demo...";
+ $("scanStatus").style.color="#5368c7";$("scanStatus").textContent="Simulating fingerprint scan...";
+ setTimeout(()=>{
+  const student=getStudents().find(s=>s.id===id), all=getAttendance(), key=today();
+  all[key]=all[key]||[];
+  if(all[key].some(r=>r.id===id)){
+   $("scanStatus").style.color="#c18a25";$("scanStatus").textContent="Attendance already marked for this student today.";
+  }else{
+   all[key].push({...student,time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})});
+   saveAttendance(all);$("scanStatus").style.color="#21895d";$("scanStatus").textContent="Demo scan successful! Attendance marked.";
+  }
+  $("scanBtn").disabled=false;$("scanBtn").textContent="◉ Start Fingerprint Scan";refresh();
+ },1200);
+});
+$("exportBtn").addEventListener("click",()=>{
+ const records=getAttendance()[today()]||[];
+ if(!records.length){alert("No attendance records to export.");return}
+ const csv=[["Name","Roll Number","Course","Time","Status"],...records.map(r=>[r.name,r.roll,r.course,r.time,"Present"])]
+ .map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\n");
+ const a=document.createElement("a"),url=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+ a.href=url;a.download="attendance-"+new Date().toISOString().slice(0,10)+".csv";a.click();URL.revokeObjectURL(url);
+});
+$("clearBtn").addEventListener("click",()=>{
+ if(!confirm("Clear all attendance records for today on this browser?"))return;
+ const all=getAttendance();delete all[today()];saveAttendance(all);$("scanStatus").textContent="Today's demo attendance cleared.";refresh();
+});
+refresh();
+</script>
+</body>
+</html>
